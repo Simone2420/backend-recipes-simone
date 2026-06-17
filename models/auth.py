@@ -15,8 +15,13 @@ class User(Base):
     updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now)
 
     #relations
-    role = relationship("Role", secondary="user_roles", back_populates="users")
+    roles = relationship("Role", secondary="user_roles", back_populates="users")
     sessions = relationship("Session", back_populates="user")
+    recipes = relationship("Recipe", back_populates="user")
+    comments = relationship("Comment", back_populates="user")
+    ratings = relationship("RecipeRating", back_populates="user")
+    audits = relationship("Audit", back_populates="user")
+
 
 class Role(Base):
     __tablename__ = "roles"

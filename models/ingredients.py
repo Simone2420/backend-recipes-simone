@@ -11,6 +11,8 @@ class Ingredient(Base):
     updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now)
     #relations
     recipes = relationship("Recipe", secondary="recipe_ingredients", back_populates="ingredients")
+    images = relationship("IngredientImage", back_populates="ingredient")
+
 
 class IngredientImage(Base):
     __tablename__ = "ingredient_images"
