@@ -1,0 +1,26 @@
+# --- API Framework & Server ---
+fastapi>=0.100.0
+uvicorn>=0.22.0
+
+# --- Database & ORM ---
+sqlalchemy>=2.0.0
+mysql-connector-python>=8.0.33
+
+# --- Security & Password Hashing ---
+passlib[argon2]>=1.7.4
+
+# --- Environment Variables ---
+dotenv
+python-dotenv>=1.0.0
+
+# --- Authentication & JWT ---
+PyJWT>=2.8.0
+email-validator>=2.0.0
+fastapi-mail>=1.4.1
+
+# --- Cloudinary ---
+cloudinary>=1.33.0
+
+# --- File Uploads & Forms ---
+python-multipart
+
