@@ -5,6 +5,7 @@ uvicorn>=0.22.0
 # --- Database & ORM ---
 sqlalchemy>=2.0.0
 mysql-connector-python>=8.0.33
+alembic
 
 # --- Security & Password Hashing ---
 passlib[argon2]>=1.7.4
