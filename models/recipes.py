@@ -18,9 +18,11 @@ class Recipe(Base):
     user = relationship("User", back_populates="recipes")
     difficulty = relationship("Difficulty", back_populates="recipes")
     comments = relationship("Comment", back_populates="recipe")
-    ingredient = relationship("Ingredient", secondary="recipe_ingredients", back_populates="recipes")
-    recipe_image = relationship("RecipeImage", back_populates="recipe")
-    recipe_rating = relationship("RecipeRating", back_populates="recipe")
+    ingredients = relationship("Ingredient", secondary="recipe_ingredients", back_populates="recipes")
+    images = relationship("RecipeImage", back_populates="recipe")
+    ratings = relationship("RecipeRating", back_populates="recipe")
+    infos = relationship("RecipeInfo", back_populates="recipe", uselist=False)
+    steps = relationship("Step", back_populates="recipe")
     
 class Difficulty(Base):
     __tablename__ = "difficulties"
@@ -29,7 +31,7 @@ class Difficulty(Base):
     created_at = Column(DateTime, default=datetime.now)
     updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now)
     #relations
-    recipes = relationship("Recipe", back_populates="difficulties")
+    recipes = relationship("Recipe", back_populates="difficulty")
     
 class RecipeInfo(Base):
     __tablename__ = "recipe_infos"

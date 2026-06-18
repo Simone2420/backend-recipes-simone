@@ -14,6 +14,8 @@ class Step(Base):
     updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now)
     #relations
     recipe = relationship("Recipe", back_populates="steps")
+    images = relationship("StepImage", back_populates="step")
+
 
 class StepImage(Base):
     __tablename__ = "step_images"
