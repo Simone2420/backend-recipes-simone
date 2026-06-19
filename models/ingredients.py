@@ -10,7 +10,7 @@ class Ingredient(Base):
     created_at = Column(DateTime, default=datetime.now)
     updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now)
     #relations
-    recipes = relationship("Recipe", secondary="recipe_ingredients", back_populates="ingredients")
+    recipes = relationship("RecipeIngredient", back_populates="ingredient")
     images = relationship("IngredientImage", back_populates="ingredient")
 
 
@@ -36,3 +36,13 @@ class RecipeIngredient(Base):
     #relations
     recipe = relationship("Recipe", back_populates="ingredients")
     ingredient = relationship("Ingredient", back_populates="recipes")
+
+    @property
+    def name(self) -> str:
+        """Expone el nombre del ingrediente para que el schema Pydantic pueda leerlo."""
+        return self.ingredient.name if self.ingredient else None
+
+    @property
+    def images(self) -> list:
+        """Expone las imágenes del ingrediente para que el schema Pydantic pueda leerlas."""
+        return self.ingredient.images if self.ingredient else []
