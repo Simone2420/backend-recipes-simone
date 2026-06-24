@@ -13,11 +13,17 @@ class UserRepository:
         return self.db.query(User).filter(User.email == email).first()
     
     def create_user(self, user: UserCreate) -> User:
+        from models import Role
         new_user = User(
             username=user.username,
             email=user.email,
             password=user.password,
         )
+        # Asignar rol de usuario por defecto
+        default_role = self.db.query(Role).filter(Role.name == "usuario").first()
+        if default_role:
+            new_user.roles.append(default_role)
+            
         self.db.add(new_user)
         self.db.commit()
         self.db.refresh(new_user)

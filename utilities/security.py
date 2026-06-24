@@ -100,8 +100,8 @@ def get_current_user(
 def check_permission(required_permission: str):
     """Dependency for Role-Based Access Control (RBAC)."""
     def _check(current_user: User = Depends(get_current_user)):
-        # Admin role has full access by default
-        if any(role.name.lower() == "admin" for role in current_user.roles):
+        # Admin role has full access by default (acepta "admin" y "administrador")
+        if any(role.name.lower().startswith("admin") for role in current_user.roles):
             return current_user
             
         # Extract all permission names associated with user roles

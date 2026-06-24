@@ -18,7 +18,7 @@ class Recipe(Base):
     user = relationship("User", back_populates="recipes")
     difficulty = relationship("Difficulty", back_populates="recipes")
     comments = relationship("Comment", back_populates="recipe")
-    ingredients = relationship("Ingredient", secondary="recipe_ingredients", back_populates="recipes")
+    ingredients = relationship("RecipeIngredient", back_populates="recipe")
     images = relationship("RecipeImage", back_populates="recipe")
     ratings = relationship("RecipeRating", back_populates="recipe")
     infos = relationship("RecipeInfo", back_populates="recipe", uselist=False)
