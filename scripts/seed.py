@@ -1,11 +1,13 @@
+#!/usr/bin/env python
+# coding=utf-8
 import os
 import sys
 
 # Agregar la raíz del proyecto al sys.path para permitir importaciones correctas
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from sqlalchemy import text
 from config.database import SessionLocal
+from models import Role, Permission
 
 def seed_roles_and_permissions(db):
     # 1. Definir permisos semilla
@@ -27,25 +29,15 @@ def seed_roles_and_permissions(db):
     ]
 
     # 2. Crear permisos en BD si no existen
-    permission_ids = {}
+    db_permissions = {}
     for perm_data in permissions_data:
-        res = db.execute(
-            text("SELECT id FROM permissions WHERE name = :name"),
-            {"name": perm_data["name"]}
-        ).fetchone()
-        
-        if not res:
-            db.execute(
-                text("INSERT INTO permissions (name, description, created_at, updated_at) VALUES (:name, :description, NOW(), NOW())"),
-                {"name": perm_data["name"], "description": perm_data["description"]}
-            )
-            # Obtener el id insertado
-            res = db.execute(
-                text("SELECT id FROM permissions WHERE name = :name"),
-                {"name": perm_data["name"]}
-            ).fetchone()
-            
-        permission_ids[perm_data["name"]] = res[0]
+        perm = db.query(Permission).filter(Permission.name == perm_data["name"]).first()
+        if not perm:
+            perm = Permission(name=perm_data["name"], description=perm_data["description"])
+            db.add(perm)
+            db.commit()
+            db.refresh(perm)
+        db_permissions[perm_data["name"]] = perm
 
     # 3. Definir roles semilla
     roles_data = [
@@ -68,37 +60,18 @@ def seed_roles_and_permissions(db):
 
     # 4. Crear roles y asignar permisos
     for role_data in roles_data:
-        role_res = db.execute(
-            text("SELECT id FROM roles WHERE name = :name"),
-            {"name": role_data["name"]}
-        ).fetchone()
-        
-        if not role_res:
-            db.execute(
-                text("INSERT INTO roles (name, description, is_active, created_at, updated_at) VALUES (:name, :description, 1, NOW(), NOW())"),
-                {"name": role_data["name"], "description": role_data["description"]}
-            )
-            role_res = db.execute(
-                text("SELECT id FROM roles WHERE name = :name"),
-                {"name": role_data["name"]}
-            ).fetchone()
-
-        role_id = role_res[0]
+        role = db.query(Role).filter(Role.name == role_data["name"]).first()
+        if not role:
+            role = Role(name=role_data["name"], description=role_data["description"], is_active=True)
+            db.add(role)
+            db.commit()
+            db.refresh(role)
 
         # Asignar permisos al rol
         for perm_name in role_data["permissions"]:
-            perm_id = permission_ids[perm_name]
-            # Verificar si la relación ya existe
-            existing = db.execute(
-                text("SELECT id FROM role_permissions WHERE role_id = :role_id AND permission_id = :perm_id"),
-                {"role_id": role_id, "perm_id": perm_id}
-            ).fetchone()
-            
-            if not existing:
-                db.execute(
-                    text("INSERT INTO role_permissions (role_id, permission_id, created_at, updated_at) VALUES (:role_id, :perm_id, NOW(), NOW())"),
-                    {"role_id": role_id, "perm_id": perm_id}
-                )
+            perm_obj = db_permissions.get(perm_name)
+            if perm_obj and perm_obj not in role.permissions:
+                role.permissions.append(perm_obj)
 
     db.commit()
     print("✅ Semillas de roles y permisos creadas exitosamente!")
