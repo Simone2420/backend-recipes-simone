@@ -10,8 +10,8 @@ class Ingredient(Base):
     created_at = Column(DateTime, default=datetime.now)
     updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now)
     #relations
-    recipes = relationship("RecipeIngredient", back_populates="ingredient")
-    images = relationship("IngredientImage", back_populates="ingredient")
+    recipes = relationship("RecipeIngredient", back_populates="ingredient", cascade="all, delete")
+    images = relationship("IngredientImage", back_populates="ingredient", cascade="all, delete")
 
 
 class IngredientImage(Base):
