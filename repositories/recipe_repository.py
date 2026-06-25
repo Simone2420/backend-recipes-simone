@@ -85,8 +85,58 @@ class RecipeRepository:
         
     def update_recipe(self, db_recipe: Recipe, recipe_update: RecipeUpdate) -> Recipe:
         update_data = recipe_update.model_dump(exclude_unset=True)
+        
+        info_data = update_data.pop("info", None)
+        ingredients_data = update_data.pop("ingredients", None)
+        steps_data = update_data.pop("steps", None)
+
         for key, value in update_data.items():
             setattr(db_recipe, key, value)
+            
+        if info_data is not None:
+            if db_recipe.infos:
+                for k, v in info_data.items():
+                    setattr(db_recipe.infos, k, v)
+            else:
+                db_info = RecipeInfo(recipe_id=db_recipe.id, **info_data)
+                self.db.add(db_info)
+
+        if ingredients_data is not None:
+            self.db.query(RecipeIngredient).filter(RecipeIngredient.recipe_id == db_recipe.id).delete()
+            for ing in ingredients_data:
+                db_recipe_ing = RecipeIngredient(
+                    recipe_id=db_recipe.id,
+                    ingredient_id=ing["ingredient_id"],
+                    quantity=ing["quantity"],
+                    measurement_unit=ing["measurement_unit"]
+                )
+                self.db.add(db_recipe_ing)
+                
+        if steps_data is not None:
+            existing_steps = {s.id: s for s in db_recipe.steps}
+            updated_step_ids = set()
+            
+            for step_data in steps_data:
+                step_id = step_data.get("id")
+                if step_id and step_id in existing_steps:
+                    step = existing_steps[step_id]
+                    step.content = step_data["content"]
+                    step.description = step_data.get("description")
+                    step.order = step_data["order"]
+                    updated_step_ids.add(step_id)
+                else:
+                    new_step = Step(
+                        recipe_id=db_recipe.id,
+                        content=step_data["content"],
+                        description=step_data.get("description"),
+                        order=step_data["order"]
+                    )
+                    self.db.add(new_step)
+            
+            for step_id, step in existing_steps.items():
+                if step_id not in updated_step_ids:
+                    self.db.delete(step)
+                    
         self.db.commit()
         self.db.refresh(db_recipe)
         return db_recipe
@@ -112,3 +162,11 @@ class RecipeRepository:
         self.db.commit()
         self.db.refresh(db_rating)
         return db_rating
+
+    # --- Step Images ---
+    def add_step_image(self, step_id: int, image_url: str) -> StepImage:
+        db_img = StepImage(step_id=step_id, image_url=image_url)
+        self.db.add(db_img)
+        self.db.commit()
+        self.db.refresh(db_img)
+        return db_img

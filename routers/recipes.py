@@ -42,6 +42,11 @@ def rate_recipe(recipe_id: int, rating: int, current_user: User = Depends(get_cu
 def upload_recipe_image(recipe_id: int, file: UploadFile = File(...), current_user: User = Depends(get_current_user), db: Session = Depends(get_db), controller: RecipeController = Depends()):
     return controller.upload_recipe_image(recipe_id, file, current_user, db)
 
+@router.post("/{recipe_id}/steps/{step_id}/image")
+def upload_step_image(recipe_id: int, step_id: int, file: UploadFile = File(...), current_user: User = Depends(get_current_user), db: Session = Depends(get_db), controller: RecipeController = Depends()):
+    return controller.upload_step_image(recipe_id, step_id, file, current_user, db)
+
+
 # --- Difficulties ---
 @router.post("/difficulties/", response_model=DifficultyResponse, status_code=201)
 def create_difficulty(difficulty: DifficultyCreate, current_user: User = Depends(check_permission("manage_difficulties")), db: Session = Depends(get_db), controller: RecipeController = Depends()):
