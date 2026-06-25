@@ -78,6 +78,19 @@ class RecipeController:
         is_admin = any(role.name.lower() == "admin" for role in current_user.roles)
         RecipeService.add_recipe_image(db, recipe_id, image_url, current_user.id, is_admin)
         return {"message": "Image uploaded successfully", "image_url": image_url}
+
+    @staticmethod
+    def upload_step_image(
+        recipe_id: int, 
+        step_id: int,
+        file: UploadFile, 
+        current_user: User, 
+        db: Session
+    ) -> dict:
+        image_url = upload_image(file)
+        is_admin = any(role.name.lower() == "admin" for role in current_user.roles)
+        RecipeService.add_step_image(db, recipe_id, step_id, image_url, current_user.id, is_admin)
+        return {"message": "Step image uploaded successfully", "image_url": image_url}
     
     # --- Difficulty endpoints ---
     @staticmethod

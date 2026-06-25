@@ -20,6 +20,7 @@ class StepImageResponse(StepImageBase):
 
 # Steps
 class StepBase(BaseModel):
+    id: Optional[int] = None
     content: str
     description: Optional[str] = None
     order: int

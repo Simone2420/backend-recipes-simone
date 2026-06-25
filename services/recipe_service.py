@@ -126,3 +126,32 @@ class RecipeService:
             
         repo.add_recipe_image(recipe_id, image_url)
         return image_url
+
+    @staticmethod
+    def add_step_image(db: Session, recipe_id: int, step_id: int, image_url: str, current_user_id: int, is_admin: bool = False) -> str:
+        """Associates an uploaded image URL with a step."""
+        repo = RecipeRepository(db)
+        recipe = repo.get_recipe_by_id(recipe_id)
+        
+        if not recipe or not recipe.is_active:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Recipe not found"
+            )
+            
+        if recipe.user_id != current_user_id and not is_admin:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Not authorized to modify this recipe"
+            )
+            
+        # Verify the step belongs to the recipe
+        step = next((s for s in recipe.steps if s.id == step_id), None)
+        if not step:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Step not found in this recipe"
+            )
+            
+        repo.add_step_image(step_id, image_url)
+        return image_url
