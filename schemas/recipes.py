@@ -97,6 +97,9 @@ class RecipeUpdate(BaseModel):
     description: Optional[str] = None
     difficulty_id: Optional[int] = None
     is_active: Optional[bool] = None
+    info: Optional[RecipeInfoUpdate] = None
+    ingredients: Optional[List[RecipeIngredientCreate]] = None
+    steps: Optional[List[StepBase]] = None
 
 class RecipeResponse(RecipeBase):
     id: int
